@@ -982,6 +982,7 @@ void NutFunction::DecompileStatement( VMState& state ) const
 			{
 				// try catch statement
 				BlockStatementPtr block = state.PushBlock();
+				int catchBlockStart = state.IP() + arg1;
 
 				while(!state.EndOfInstructions())
 				{
@@ -994,12 +995,24 @@ void NutFunction::DecompileStatement( VMState& state ) const
 					DecompileStatement(state);
 				}
 
-				if (m_Instructions[state.IP()].op == OP_JMP)
+				if (m_Instructions[state.IP()].op == OP_JMP || m_Instructions[state.IP()].op == OP_RETURN)
 				{
+					if (m_Instructions[state.IP()].op == OP_RETURN) {
+						DecompileStatement(state);
+
+						// usually deadcode part between try end and catch start
+						// is this a compiler`s failure?
+						while(state.IP() < catchBlockStart && m_Instructions[state.IP()].op != OP_JMP) {
+							state.NextInstruction();
+							state.PushUnknownOpcode();
+						}
+					}
+
 					BlockStatementPtr tryBlock = state.PushBlock();
 
 					// second part - catch statement
 					int jump_arg1 = m_Instructions[state.IP()].arg1;
+					
 					state.NextInstruction();
 
 					// Search for local variable of exception handler
