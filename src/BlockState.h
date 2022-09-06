@@ -10,6 +10,7 @@ struct BlockState
 	static const int UsedForwardJumpContinue = 0x01;
 	static const int UsedBackwardJumpContinue = 0x02;
 
+	unsigned char inTry;
 	unsigned char inLoop;
 	unsigned char inSwitch;
 	unsigned char loopFlags;
@@ -21,6 +22,7 @@ struct BlockState
 
 	BlockState()
 	{
+		inTry = 0;
 		inLoop = 0;
 		inSwitch = 0;
 		loopFlags = 0;

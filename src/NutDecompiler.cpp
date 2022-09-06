@@ -982,6 +982,7 @@ void NutFunction::DecompileStatement( VMState& state ) const
 			{
 				// try catch statement
 				BlockStatementPtr block = state.PushBlock();
+				state.m_BlockState.inTry = 1;
 				int catchBlockStart = state.IP() + arg1;
 
 				while(!state.EndOfInstructions())
@@ -1009,6 +1010,7 @@ void NutFunction::DecompileStatement( VMState& state ) const
 					}
 
 					BlockStatementPtr tryBlock = state.PushBlock();
+					state.m_BlockState.inTry = 0;
 
 					// second part - catch statement
 					int jump_arg1 = m_Instructions[state.IP()].arg1;
@@ -1045,8 +1047,11 @@ void NutFunction::DecompileStatement( VMState& state ) const
 			break;
 
 
-		// *** OP_POPTRAP case unspecified, used when parsing try...catch in OP_PUSHTRAP
-		
+		// OP_POPTRAP can be found only in a try block, if this code executed it`s probably an if/else in the try block
+		case OP_POPTRAP:
+			if (state.m_BlockState.inTry) break;
+			else goto default_case;
+
 		case OP_THROW:
 			state.PushStatement(StatementPtr(new ThrowStatement(state.GetVar(arg0))));
 			break;
@@ -1127,6 +1132,7 @@ void NutFunction::DecompileStatement( VMState& state ) const
 			break;
 
 		default:
+		default_case:
 			state.PushUnknownOpcode();
 
 			if (code != OP_JMP)
