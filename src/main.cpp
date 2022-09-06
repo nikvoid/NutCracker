@@ -19,6 +19,7 @@ void Usage( void )
 	std::cout << "   -h         Display usage info" << std::endl;
 	std::cout << "   -cmp       Compare two binary files" << std::endl;
 	std::cout << "   -d <name>  Display debug decompilation for function" << std::endl;
+	std::cout << "   -o <file>  Write output to file instead of stdout" << std::endl;
 	std::cout << std::endl;
 	std::cout << std::endl;
 }
@@ -69,7 +70,7 @@ void DebugFunctionPrint( const NutFunction& function )
 }
 
 
-int Decompile( const char* file, const char* debugFunction )
+int Decompile( const char* file, const char* debugFunction, std::ostream& out )
 {
 	try
 	{
@@ -97,7 +98,7 @@ int Decompile( const char* file, const char* debugFunction )
 			}
 		}
 
-		script.GetMain().GenerateBodySource(0, std::cout);
+		script.GetMain().GenerateBodySource(0, out);
 	}
 	catch( std::exception& ex )
 	{
@@ -119,6 +120,7 @@ int stricmpWrapper(char* in, const char* cmp) {
 int main( int argc, char* argv[] )
 {
 	const char* debugFunction = NULL;
+	const char* out_filename = NULL;
 
 	for( int i = 1; i < argc; ++i)
 	{
@@ -135,6 +137,16 @@ int main( int argc, char* argv[] )
 				return -1;
 			}
 			debugFunction = argv[i + 1];
+			i += 1;
+		}
+		else if (0 == stricmpWrapper(argv[i], "-o"))
+		{
+			if ((argc - i) < 2)
+			{
+				Usage();
+				return -1;
+			}
+			out_filename = argv[i + 1];
 			i += 1;
 		}
 		else if (0 == stricmpWrapper(argv[i], "-cmp"))
@@ -157,7 +169,15 @@ int main( int argc, char* argv[] )
 		}
 		else
 		{
-			return Decompile(argv[i], debugFunction);
+			if (out_filename) 
+			{
+				std::ofstream out_file(out_filename);
+				return Decompile(argv[i], debugFunction, out_file);
+			} 
+			else 
+			{
+				return Decompile(argv[i], debugFunction, std::cout);
+			}
 		}
 	}
 
