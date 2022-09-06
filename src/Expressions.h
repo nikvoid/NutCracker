@@ -12,6 +12,45 @@
 using namespace std;
 using namespace std::tr1;
 
+
+// ************************************************************************************************************************************
+const std::vector<const char*> ReservedLabels =
+{
+//"base",
+	"break",
+	"case",
+	"catch",
+	"class",
+	"clone",
+//"constructor",
+	"continue",
+	"const",
+	"default",
+	"delete",
+	"else",
+	"enum",
+	"extends",
+	"false",
+	"for",
+	"foreach",
+	"function",
+	"instanceof",
+	"local",
+	"null",
+	"resume",
+	"return",
+	"static",
+	"switch",
+	"this",
+	"throw",
+	"true",
+	"try",
+	"typeof",
+	"while",
+	"yield"
+};
+
+
 // ************************************************************************************************************************************
 enum ExpressionType
 {
@@ -260,6 +299,11 @@ public:
 	{
 		if (!m_isLiteral || m_text.size() < 3)
 			return false;
+
+		for (const char* reserved : ReservedLabels) {
+			if (m_text.substr(1, m_text.size() - 2) == reserved) 
+				return false;
+		}
 
 		for(int i = 1; i < (int)(m_text.size() - 1); ++i)
 		{
