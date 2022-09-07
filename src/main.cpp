@@ -63,10 +63,10 @@ int Compare( const char* file1, const char* file2, bool general )
 }
 
 
-void DebugFunctionPrint( const NutFunction& function )
+void DebugFunctionPrint( const NutFunction& function, std::ostream& out )
 {
 	g_DebugMode = true;
-	function.GenerateFunctionSource(0, std::cout);
+	function.GenerateFunctionSource(0, out);
 }
 
 
@@ -81,7 +81,7 @@ int Decompile( const char* file, const char* debugFunction, std::ostream& out )
 		{
 			if (0 == strcmp(debugFunction, "main"))
 			{
-				DebugFunctionPrint(script.GetMain());
+				DebugFunctionPrint(script.GetMain(), out);
 				return 0;
 			}
 			else
@@ -93,7 +93,7 @@ int Decompile( const char* file, const char* debugFunction, std::ostream& out )
 					return -2;
 				}
 
-				DebugFunctionPrint(*func);
+				DebugFunctionPrint(*func, out);
 				return 0;
 			}
 		}
